@@ -99,7 +99,7 @@ export interface OKRUpdateLog {
   keyResultId?: string; // Optional, for KR-level changes
   userId: string;
   action: "create" | "update" | "delete" | "progress_update";
-  fieldChanged?: string; // e.g. "progress", "description", "title"
+  fieldChanged?: string;
   oldValue?: string | number | null;
   newValue?: string | number | null;
   timestamp: Date;

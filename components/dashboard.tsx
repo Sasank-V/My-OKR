@@ -24,7 +24,6 @@ export function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Mock data - in real app, this would come from your API
   const stats = {
     totalOKRs: 12,
     completedOKRs: 8,

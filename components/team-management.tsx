@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -15,19 +21,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { Users, Search, Mail, UserPlus, Building, Target } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Users, Search, Mail, UserPlus, Building, Target } from "lucide-react";
 
 export function TeamManagement() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState("")
-  const [inviteRole, setInviteRole] = useState("")
-  const [inviteTeam, setInviteTeam] = useState("")
-  const { toast } = useToast()
+  const [searchTerm, setSearchTerm] = useState("");
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("");
+  const [inviteTeam, setInviteTeam] = useState("");
+  const { toast } = useToast();
 
   // Mock data
   const teams = [
@@ -110,37 +122,36 @@ export function TeamManagement() {
         },
       ],
     },
-  ]
+  ];
 
   const filteredTeams = teams.filter(
     (team) =>
       team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      team.department.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      team.department.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleInviteUser = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!inviteEmail || !inviteRole || !inviteTeam) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    // In a real app, this would send an invitation
     toast({
       title: "Invitation Sent!",
       description: `Invitation sent to ${inviteEmail}`,
-    })
+    });
 
-    setInviteEmail("")
-    setInviteRole("")
-    setInviteTeam("")
-    setInviteDialogOpen(false)
-  }
+    setInviteEmail("");
+    setInviteRole("");
+    setInviteTeam("");
+    setInviteDialogOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -159,7 +170,9 @@ export function TeamManagement() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Invite Team Member</DialogTitle>
-              <DialogDescription>Send an invitation to join your organization</DialogDescription>
+              <DialogDescription>
+                Send an invitation to join your organization
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleInviteUser} className="space-y-4">
               <div>
@@ -175,7 +188,11 @@ export function TeamManagement() {
               </div>
               <div>
                 <Label htmlFor="role">Role</Label>
-                <Select value={inviteRole} onValueChange={setInviteRole} required>
+                <Select
+                  value={inviteRole}
+                  onValueChange={setInviteRole}
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -188,7 +205,11 @@ export function TeamManagement() {
               </div>
               <div>
                 <Label htmlFor="team">Team</Label>
-                <Select value={inviteTeam} onValueChange={setInviteTeam} required>
+                <Select
+                  value={inviteTeam}
+                  onValueChange={setInviteTeam}
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select team" />
                   </SelectTrigger>
@@ -202,7 +223,11 @@ export function TeamManagement() {
                 </Select>
               </div>
               <div className="flex justify-end gap-3">
-                <Button type="button" variant="outline" onClick={() => setInviteDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setInviteDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">
@@ -258,7 +283,9 @@ export function TeamManagement() {
 
                 {/* Team Lead */}
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">Team Lead</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Team Lead
+                  </p>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6 w-6">
                       <AvatarImage src="/placeholder.svg?height=24&width=24" />
@@ -273,14 +300,21 @@ export function TeamManagement() {
                   <p className="text-sm text-muted-foreground mb-2">Members</p>
                   <div className="flex -space-x-2">
                     {team.members.slice(0, 4).map((member) => (
-                      <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
-                        <AvatarImage src={member.avatar || "/placeholder.svg"} />
+                      <Avatar
+                        key={member.id}
+                        className="h-8 w-8 border-2 border-background"
+                      >
+                        <AvatarImage
+                          src={member.avatar || "/placeholder.svg"}
+                        />
                         <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                     ))}
                     {team.memberCount > 4 && (
                       <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                        <span className="text-xs font-medium">+{team.memberCount - 4}</span>
+                        <span className="text-xs font-medium">
+                          +{team.memberCount - 4}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -306,10 +340,12 @@ export function TeamManagement() {
           <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">No teams found</h3>
           <p className="text-muted-foreground">
-            {searchTerm ? "Try adjusting your search" : "Create your first team to get started"}
+            {searchTerm
+              ? "Try adjusting your search"
+              : "Create your first team to get started"}
           </p>
         </div>
       )}
     </div>
-  )
+  );
 }

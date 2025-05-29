@@ -34,7 +34,7 @@ export default function EditDepartmentPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    head: "", // store head's user _id here
+    head: "",
     budget: "",
     location: "",
     establishedDate: "",
@@ -43,7 +43,6 @@ export default function EditDepartmentPage() {
     status: "",
   });
 
-  // You can fetch these from your backend or keep this as mock if you want
   const availableHeads = [
     { id: "1", name: "John Smith", role: "VP of Engineering" },
     { id: "2", name: "Sarah Johnson", role: "Director of Marketing" },
@@ -63,11 +62,10 @@ export default function EditDepartmentPage() {
         }
         const data = await res.json();
 
-        // Normalize data for form
         setFormData({
           name: data.name || "",
           description: data.description || "",
-          head: data.head?._id || data.head || "", // depending on populated or not
+          head: data.head?._id || data.head || "",
           budget: data.budget ? String(data.budget) : "",
           location: data.location || "",
           establishedDate: data.establishedDate

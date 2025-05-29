@@ -51,7 +51,6 @@ export default function EditPersonPage() {
   const [newSkill, setNewSkill] = useState("");
 
   useEffect(() => {
-    // Mock data - in real app, fetch from API
     const mockPerson = {
       firstName: "John",
       lastName: "Doe",

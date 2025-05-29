@@ -87,7 +87,6 @@ export async function POST(req: NextRequest) {
       okrData.memberId = memberId;
     }
 
-    // Only include if not empty or undefined
     if (teamId) okrData.teamId = teamId;
     if (departmentId) okrData.departmentId = departmentId;
 

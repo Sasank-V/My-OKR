@@ -33,7 +33,6 @@ export default function PersonDetailsPage() {
   const [personData, setPersonData] = useState<any>(null);
 
   useEffect(() => {
-    // Mock data - in real app, fetch from API
     const mockPerson = {
       id: personId,
       firstName: "John",

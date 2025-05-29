@@ -53,8 +53,6 @@ export default function OKRDetailsPage() {
         return res.json();
       })
       .then((data) => {
-        // You might need to transform the API data to match your UI structure here
-        // Example: map ownerId to owner with avatar and role, etc.
         const transformedData = {
           id: data._id,
           title: data.title,

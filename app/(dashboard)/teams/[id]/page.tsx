@@ -58,14 +58,12 @@ export default function TeamDetailsPage() {
             avatar: m.avatar || "/placeholder.svg",
             status: data.status,
           })),
-          // Add mock values for metrics if not available from API
           metrics: {
             completedProjects: 0,
             averageOKRProgress: 0,
             teamSatisfaction: 0,
             deliveryOnTime: 0,
           },
-          // Placeholder - you can implement OKRs and activity tracking later
           okrs: [],
           recentActivity: [],
         });

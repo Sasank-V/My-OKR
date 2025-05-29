@@ -18,7 +18,6 @@ import Image from "next/image";
 export function Header() {
   const { data: session, status } = useSession();
 
-  // You can safely handle loading or unauthenticated states:
   if (status === "loading") {
     return <header>Loading...</header>;
   }

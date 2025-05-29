@@ -33,12 +33,12 @@ const TeamSchema: Schema<ITeam> = new Schema(
       required: true,
     },
     memberIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    goals: { type: String }, // New field for team goals/objectives
+    goals: { type: String },
     status: {
       type: String,
       enum: ["Active", "Inactive", "Planning"],
       default: "Active",
-    }, // New field for team status
+    },
   },
   { timestamps: true }
 );

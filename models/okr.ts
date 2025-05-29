@@ -55,12 +55,12 @@ const OKRSchema = new Schema<IOKR>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }, // optional
-    departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department" }, // newly added
+    teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }, 
+    departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
-    }, // now optional
+    },
     objectiveType: {
       type: String,
       enum: ["individual", "team", "department", "organization"],

@@ -100,8 +100,7 @@ export async function PUT(
     const fieldsToCompare = [
       "title",
       "description",
-      "ownerId", // we will override this with userId from session below
-      // "memberId",  <-- removed
+      "ownerId",
       "teamId",
       "departmentId",
       "organizationId",

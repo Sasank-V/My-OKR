@@ -82,7 +82,6 @@ export default function EditOKRPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Fetch teams data
   const fetchTeams = async (): Promise<Entity[]> => {
     try {
       const res = await fetch("/api/teams");

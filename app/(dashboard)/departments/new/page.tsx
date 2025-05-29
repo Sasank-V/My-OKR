@@ -79,7 +79,6 @@ export default function NewDepartmentPage() {
       }
 
       const result = await response.json();
-      // console.log("Department created:", result);
       router.push("/departments");
     } catch (error) {
       console.error("Error creating department:", error);
@@ -130,7 +129,6 @@ export default function NewDepartmentPage() {
                   <Select
                     value={formData.head}
                     onValueChange={(value) => {
-                      // console.log("Selected:", value);
                       setFormData((prev) => ({ ...prev, head: value }));
                     }}
                   >

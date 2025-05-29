@@ -14,9 +14,9 @@ export async function GET(req: Request, context: { params: { id: string } }) {
     await connectDB();
 
     const logs = await OKRUpdateLog.find({ okrId: id })
-      .sort({ timestamp: -1 }) // latest updates first
-      .populate("userId", "name email") // populate user details (name and email fields assumed)
-      .populate("keyResultId") // optional: populate keyResult if needed
+      .sort({ timestamp: -1 })
+      .populate("userId", "name email")
+      .populate("keyResultId")
       .lean();
 
     return NextResponse.json(logs);

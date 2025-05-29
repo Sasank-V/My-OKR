@@ -1,10 +1,9 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-
 export interface IDepartment extends Document {
   organizationId: mongoose.Types.ObjectId;
   name: string;
   description?: string;
-  head: mongoose.Types.ObjectId; // changed from managerId to head to match formData.head
+  head: mongoose.Types.ObjectId;
   budget?: string;
   location?: string;
   establishedDate?: Date;
@@ -26,7 +25,6 @@ const DepartmentSchema: Schema<IDepartment> = new Schema(
     description: { type: String },
 
     head: {
-      // Department Head field replacing managerId
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

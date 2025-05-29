@@ -94,7 +94,7 @@ const sidebarGroups = [
     id: "group-4",
     items: [
       { id: "admin", label: "Admin", icon: Settings, href: "/admin" },
-      { id: "ai-buddy", label: "AI Buddy", icon: Brain, href: "/ai" }, // 👈 Added
+      { id: "ai-buddy", label: "AI Buddy", icon: Brain, href: "/ai" },
     ],
   },
 ];

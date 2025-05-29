@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
 
     // Fetch teams from MongoDB and populate lead and members info
     const teams = await Team.find(filter)
-      .populate("leadId", "name avatar") // populate lead's name and avatar
-      .populate("memberIds", "name avatar") // populate members' name and avatar
+      .populate("leadId", "name avatar")
+      .populate("memberIds", "name avatar")
       .lean();
 
     const teamsWithMembers = teams.map((team) => ({
@@ -24,10 +24,10 @@ export async function GET(request: NextRequest) {
       name: team.name,
       description: team.description,
       departmentId: team.departmentId.toString(),
-      lead: team.leadId, // already populated object with name/avatar
-      members: team.memberIds, // array of populated user objects
+      lead: team.leadId,
+      members: team.memberIds,
       memberCount: team.memberIds.length,
-      status: "Active", // You can adapt if you have status field
+      status: "Active",
     }));
 
     return NextResponse.json({ success: true, data: teamsWithMembers });

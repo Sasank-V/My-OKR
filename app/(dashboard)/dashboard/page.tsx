@@ -63,12 +63,12 @@ export default function Dashboard() {
               ? "completed"
               : okr.status === "on-track" || okr.status === "at-risk"
               ? okr.status
-              : "active", // fallback for 'active' from backend
+              : "active",
         }));
 
         setOkrs(transformed);
         setLoading(false);
-      } catch (err: any) {
+      } catch (err) {
         setError(err.message || "Unknown error");
         setLoading(false);
       }

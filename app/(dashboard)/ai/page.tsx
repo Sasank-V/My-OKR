@@ -69,12 +69,10 @@ export default function AISuggestionsPage() {
   const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
 
-  // Mock OKR data - replace with actual API call
   useEffect(() => {
     const fetchOKRs = async () => {
       setLoading(true);
       try {
-        // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const mockOKRs: OKR[] = [

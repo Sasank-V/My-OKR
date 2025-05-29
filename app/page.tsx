@@ -24,7 +24,6 @@ export default function LandingPage() {
 
   useEffect(() => {
     const animateElements = () => {
-      // Header animation
       if (headerRef.current) {
         const header = headerRef.current;
         header.style.opacity = "0";
@@ -36,7 +35,6 @@ export default function LandingPage() {
         }, 100);
       }
 
-      // Hero animation
       if (heroRef.current) {
         const elements = Array.from(heroRef.current.children) as HTMLElement[];
         elements.forEach((el, index) => {
@@ -50,7 +48,6 @@ export default function LandingPage() {
         });
       }
 
-      // Features animation
       if (featuresRef.current) {
         const cards =
           featuresRef.current.querySelectorAll<HTMLElement>(".feature-card");

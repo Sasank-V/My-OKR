@@ -71,7 +71,6 @@ export default function NewTeamPage() {
     fetchDepartments();
   }, []);
 
-  // Fetch people from /api/people on mount
   useEffect(() => {
     async function fetchPeople() {
       try {
@@ -128,8 +127,6 @@ export default function NewTeamPage() {
         return;
       }
 
-      // Optionally, get response data
-      // const data = await res.json();
 
       router.push("/teams");
     } catch (error) {

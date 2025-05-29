@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
       name,
       description,
       departmentId,
-      // organizationId, -- remove from destructuring
       leadId,
       memberIds,
       goals,
@@ -27,7 +26,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch the first organization from DB
     const firstOrganization = await Organization.findOne().exec();
     if (!firstOrganization) {
       return NextResponse.json(

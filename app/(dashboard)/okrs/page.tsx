@@ -111,7 +111,6 @@ export default function OKRList() {
     }
   };
 
-  // Capitalize first letter for title
   const capitalize = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1);
 

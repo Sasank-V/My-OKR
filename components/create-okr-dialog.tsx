@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,30 +11,38 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { Plus, Target, Trash2 } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Plus, Target, Trash2 } from "lucide-react";
 
 interface KeyResult {
-  id: string
-  title: string
-  target: string
-  unit: string
+  id: string;
+  title: string;
+  target: string;
+  unit: string;
 }
 
 export function CreateOKRDialog() {
-  const [open, setOpen] = useState(false)
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [owner, setOwner] = useState("")
-  const [team, setTeam] = useState("")
-  const [dueDate, setDueDate] = useState("")
-  const [keyResults, setKeyResults] = useState<KeyResult[]>([{ id: "1", title: "", target: "", unit: "" }])
-  const { toast } = useToast()
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [owner, setOwner] = useState("");
+  const [team, setTeam] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [keyResults, setKeyResults] = useState<KeyResult[]>([
+    { id: "1", title: "", target: "", unit: "" },
+  ]);
+  const { toast } = useToast();
 
   const addKeyResult = () => {
     const newKR: KeyResult = {
@@ -42,34 +50,43 @@ export function CreateOKRDialog() {
       title: "",
       target: "",
       unit: "",
-    }
-    setKeyResults([...keyResults, newKR])
-  }
+    };
+    setKeyResults([...keyResults, newKR]);
+  };
 
   const removeKeyResult = (id: string) => {
     if (keyResults.length > 1) {
-      setKeyResults(keyResults.filter((kr) => kr.id !== id))
+      setKeyResults(keyResults.filter((kr) => kr.id !== id));
     }
-  }
+  };
 
-  const updateKeyResult = (id: string, field: keyof KeyResult, value: string) => {
-    setKeyResults(keyResults.map((kr) => (kr.id === id ? { ...kr, [field]: value } : kr)))
-  }
+  const updateKeyResult = (
+    id: string,
+    field: keyof KeyResult,
+    value: string
+  ) => {
+    setKeyResults(
+      keyResults.map((kr) => (kr.id === id ? { ...kr, [field]: value } : kr))
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Basic validation
-    if (!title || !description || keyResults.some((kr) => !kr.title || !kr.target)) {
+    if (
+      !title ||
+      !description ||
+      keyResults.some((kr) => !kr.title || !kr.target)
+    ) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    // In a real app, this would call your API
     console.log("Creating OKR:", {
       title,
       description,
@@ -77,22 +94,22 @@ export function CreateOKRDialog() {
       team,
       dueDate,
       keyResults,
-    })
+    });
 
     toast({
       title: "OKR Created!",
       description: "Your new objective has been successfully created.",
-    })
+    });
 
     // Reset form
-    setTitle("")
-    setDescription("")
-    setOwner("")
-    setTeam("")
-    setDueDate("")
-    setKeyResults([{ id: "1", title: "", target: "", unit: "" }])
-    setOpen(false)
-  }
+    setTitle("");
+    setDescription("");
+    setOwner("");
+    setTeam("");
+    setDueDate("");
+    setKeyResults([{ id: "1", title: "", target: "", unit: "" }]);
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -109,7 +126,8 @@ export function CreateOKRDialog() {
             Create New OKR
           </DialogTitle>
           <DialogDescription>
-            Define your objective and key results to track progress towards your goals.
+            Define your objective and key results to track progress towards your
+            goals.
           </DialogDescription>
         </DialogHeader>
 
@@ -162,7 +180,9 @@ export function CreateOKRDialog() {
                   <SelectContent>
                     <SelectItem value="engineering">Engineering</SelectItem>
                     <SelectItem value="product">Product</SelectItem>
-                    <SelectItem value="customer-success">Customer Success</SelectItem>
+                    <SelectItem value="customer-success">
+                      Customer Success
+                    </SelectItem>
                     <SelectItem value="sales">Sales</SelectItem>
                   </SelectContent>
                 </Select>
@@ -171,7 +191,12 @@ export function CreateOKRDialog() {
 
             <div>
               <Label htmlFor="dueDate">Due Date</Label>
-              <Input id="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              <Input
+                id="dueDate"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
             </div>
           </div>
 
@@ -179,7 +204,12 @@ export function CreateOKRDialog() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-base font-medium">Key Results *</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addKeyResult}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addKeyResult}
+              >
                 <Plus className="h-4 w-4 mr-1" />
                 Add Key Result
               </Button>
@@ -189,9 +219,16 @@ export function CreateOKRDialog() {
               {keyResults.map((kr, index) => (
                 <div key={kr.id} className="p-4 border rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">Key Result {index + 1}</Label>
+                    <Label className="text-sm font-medium">
+                      Key Result {index + 1}
+                    </Label>
                     {keyResults.length > 1 && (
-                      <Button type="button" variant="ghost" size="sm" onClick={() => removeKeyResult(kr.id)}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeKeyResult(kr.id)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
@@ -201,7 +238,9 @@ export function CreateOKRDialog() {
                     <Input
                       placeholder="e.g., Achieve NPS score of 50+"
                       value={kr.title}
-                      onChange={(e) => updateKeyResult(kr.id, "title", e.target.value)}
+                      onChange={(e) =>
+                        updateKeyResult(kr.id, "title", e.target.value)
+                      }
                       required
                     />
                   </div>
@@ -210,13 +249,17 @@ export function CreateOKRDialog() {
                     <Input
                       placeholder="Target value (e.g., 50)"
                       value={kr.target}
-                      onChange={(e) => updateKeyResult(kr.id, "target", e.target.value)}
+                      onChange={(e) =>
+                        updateKeyResult(kr.id, "target", e.target.value)
+                      }
                       required
                     />
                     <Input
                       placeholder="Unit (e.g., points, %, users)"
                       value={kr.unit}
-                      onChange={(e) => updateKeyResult(kr.id, "unit", e.target.value)}
+                      onChange={(e) =>
+                        updateKeyResult(kr.id, "unit", e.target.value)
+                      }
                     />
                   </div>
                 </div>
@@ -225,7 +268,11 @@ export function CreateOKRDialog() {
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit">Create OKR</Button>
@@ -233,5 +280,5 @@ export function CreateOKRDialog() {
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
