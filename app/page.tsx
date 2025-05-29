@@ -219,7 +219,7 @@ export default function LandingPage() {
             {[
               {
                 icon: Target,
-                title: "Company OKRs",
+                title: "Organization OKRs",
                 description:
                   "Align your organization with top-level objectives and strategic initiatives.",
                 gradient: "from-blue-500 to-blue-600",

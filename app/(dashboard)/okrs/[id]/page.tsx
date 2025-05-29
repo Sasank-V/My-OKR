@@ -20,6 +20,9 @@ import {
   Building2,
   Users,
   TrendingUp,
+  Clock,
+  User,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -29,97 +32,91 @@ export default function OKRDetailsPage() {
   const okrId = params.id;
 
   const [okrData, setOkrData] = useState<any>(null);
+  const [updateLogs, setUpdateLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [logsLoading, setLogsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [logsError, setLogsError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mock data - in real app, fetch from API
-    const mockOKR = {
-      id: okrId,
-      title: "Increase Annual Revenue",
-      description:
-        "Drive company growth through strategic initiatives and market expansion",
-      type: "Company",
-      owner: {
-        name: "John Smith",
-        role: "CEO",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      department: "Executive",
-      team: "Leadership",
-      startDate: "2024-01-01",
-      endDate: "2024-12-31",
-      status: "On Track",
-      progress: 75,
-      keyResults: [
-        {
-          id: 1,
-          title: "Achieve $10M ARR",
-          target: 10000000,
-          unit: "$",
-          current: 8000000,
-          progress: 80,
-          lastUpdated: "2024-01-15",
-        },
-        {
-          id: 2,
-          title: "Expand to 3 new markets",
-          target: 3,
-          unit: "markets",
-          current: 2,
-          progress: 67,
-          lastUpdated: "2024-01-10",
-        },
-        {
-          id: 3,
-          title: "Increase customer retention to 95%",
-          target: 95,
-          unit: "%",
-          current: 78,
-          progress: 78,
-          lastUpdated: "2024-01-12",
-        },
-      ],
-      updates: [
-        {
-          id: 1,
-          author: "John Smith",
-          date: "2024-01-15",
-          content:
-            "Q1 revenue targets exceeded expectations. On track for annual goal.",
-          type: "progress",
-        },
-        {
-          id: 2,
-          author: "Sarah Johnson",
-          date: "2024-01-10",
-          content:
-            "Successfully launched in European market. Asia expansion planned for Q2.",
-          type: "milestone",
-        },
-      ],
-      contributors: [
-        {
-          name: "John Smith",
-          role: "CEO",
-          avatar: "/placeholder.svg?height=32&width=32",
-        },
-        {
-          name: "Sarah Johnson",
-          role: "VP Sales",
-          avatar: "/placeholder.svg?height=32&width=32",
-        },
-        {
-          name: "Mike Wilson",
-          role: "Marketing Director",
-          avatar: "/placeholder.svg?height=32&width=32",
-        },
-      ],
-    };
-    setOkrData(mockOKR);
+    if (!okrId) return;
+
+    setLoading(true);
+    setError(null);
+
+    fetch(`/api/okrs/${okrId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to fetch OKR");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        // You might need to transform the API data to match your UI structure here
+        // Example: map ownerId to owner with avatar and role, etc.
+        const transformedData = {
+          id: data._id,
+          title: data.title,
+          description: data.description,
+          type: data.type,
+          owner: {
+            name: data.ownerId?.name || "Unknown",
+            role: data.ownerId?.role || "Owner",
+            avatar: data.ownerId?.avatar || "/placeholder.svg",
+          },
+          department: data.departmentId?.name || "N/A",
+          team: data.teamId?.name || "N/A",
+          startDate: data.startDate,
+          endDate: data.endDate,
+          status: data.status || "Unknown",
+          progress: data.progress || 0,
+          keyResults: data.keyResults || [],
+          updates: data.updates || [],
+          contributors:
+            data.contributors?.map((c: any) => ({
+              name: c.name,
+              role: c.role,
+              avatar: c.avatar || "/placeholder.svg",
+            })) || [],
+        };
+
+        setOkrData(transformedData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, [okrId]);
 
-  if (!okrData) {
-    return <div className="p-6">Loading...</div>;
-  }
+  useEffect(() => {
+    if (!okrId) return;
+
+    setLogsLoading(true);
+    setLogsError(null);
+
+    fetch(`/api/okrs/${okrId}/updates`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to fetch update logs");
+        }
+        return res.json();
+      })
+      .then((logs) => {
+        setUpdateLogs(logs);
+        setLogsLoading(false);
+      })
+      .catch((err) => {
+        setLogsError(err.message);
+        setLogsLoading(false);
+      });
+  }, [okrId]);
+
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
+  if (!okrData) return <div className="p-6">No data found.</div>;
 
   const formatValue = (value: number, unit: string) => {
     if (unit === "$") {
@@ -129,6 +126,62 @@ export default function OKRDetailsPage() {
       }).format(value);
     }
     return `${value}${unit}`;
+  };
+
+  const getActionIcon = (action: string) => {
+    switch (action) {
+      case "create":
+        return <Target className="h-4 w-4 text-green-600" />;
+      case "update":
+        return <Edit className="h-4 w-4 text-blue-600" />;
+      case "delete":
+        return <Target className="h-4 w-4 text-red-600" />;
+      case "progress_update":
+        return <TrendingUp className="h-4 w-4 text-orange-600" />;
+      default:
+        return <Activity className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const getActionText = (
+    action: string,
+    fieldChanged?: string,
+    oldValue?: any,
+    newValue?: any
+  ) => {
+    switch (action) {
+      case "create":
+        return "Created OKR";
+      case "update":
+        if (fieldChanged && oldValue !== undefined && newValue !== undefined) {
+          return `Updated ${fieldChanged} from "${oldValue}" to "${newValue}"`;
+        }
+        return "Updated OKR";
+      case "delete":
+        return "Deleted OKR";
+      case "progress_update":
+        if (oldValue !== undefined && newValue !== undefined) {
+          return `Updated progress from ${oldValue}% to ${newValue}%`;
+        }
+        return "Updated progress";
+      default:
+        return "Unknown action";
+    }
+  };
+
+  const getActionBadgeVariant = (action: string) => {
+    switch (action) {
+      case "create":
+        return "default";
+      case "update":
+        return "secondary";
+      case "delete":
+        return "destructive";
+      case "progress_update":
+        return "outline";
+      default:
+        return "outline";
+    }
   };
 
   return (
@@ -248,8 +301,9 @@ export default function OKRDetailsPage() {
       <Tabs defaultValue="key-results" className="space-y-6">
         <TabsList>
           <TabsTrigger value="key-results">Key Results</TabsTrigger>
-          <TabsTrigger value="updates">Updates</TabsTrigger>
-          <TabsTrigger value="contributors">Contributors</TabsTrigger>
+          {/* <TabsTrigger value="updates">Updates</TabsTrigger> */}
+          <TabsTrigger value="activity">Activity Log</TabsTrigger>
+          {/* <TabsTrigger value="contributors">Contributors</TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="key-results">
@@ -280,93 +334,118 @@ export default function OKRDetailsPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span>{kr.progress}%</span>
-                    </div>
-                    <Progress value={kr.progress} className="w-full" />
-                  </div>
+                  <Progress value={kr.progress} />
                 </CardContent>
               </Card>
             ))}
           </div>
         </TabsContent>
 
-        <TabsContent value="updates">
+        {/* <TabsContent value="updates">
           <div className="space-y-4">
             {okrData.updates.map((update: any) => (
               <Card key={update.id}>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback>
-                          {update.author
-                            .split(" ")
-                            .map((n: string) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{update.author}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {new Date(update.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <Badge variant="outline">
-                      {update.type === "progress" ? (
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                      ) : (
-                        <Target className="h-3 w-3 mr-1" />
-                      )}
-                      {update.type}
-                    </Badge>
-                  </div>
+                  <CardTitle>{update.title}</CardTitle>
+                  <CardDescription>
+                    {new Date(update.date).toLocaleDateString()}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm">{update.content}</p>
-                </CardContent>
+                <CardContent>{update.content}</CardContent>
               </Card>
             ))}
           </div>
-        </TabsContent>
+        </TabsContent> */}
 
-        <TabsContent value="contributors">
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Contributors</CardTitle>
-              <CardDescription>People working on this OKR</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {okrData.contributors.map((contributor: any, index: number) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <Avatar>
-                      <AvatarImage
-                        src={contributor.avatar || "/placeholder.svg"}
-                        alt={contributor.name}
-                      />
-                      <AvatarFallback>
-                        {contributor.name
-                          .split(" ")
-                          .map((n: string) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{contributor.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {contributor.role}
+        <TabsContent value="activity">
+          <div className="space-y-4">
+            {logsLoading ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">
+                  Loading activity logs...
+                </div>
+              </div>
+            ) : logsError ? (
+              <div className="text-center py-8">
+                <div className="text-red-600">
+                  Error loading activity logs: {logsError}
+                </div>
+              </div>
+            ) : updateLogs.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">
+                  No activity logs found.
+                </div>
+              </div>
+            ) : (
+              updateLogs.map((log: any) => (
+                <Card key={log._id}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        {getActionIcon(log.action)}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">
+                              {log.userId?.name || "Unknown User"}
+                            </span>
+                            <Badge variant={getActionBadgeVariant(log.action)}>
+                              {log.action.replace("_", " ")}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {new Date(log.timestamp).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="mt-1 text-sm text-muted-foreground">
+                          {getActionText(
+                            log.action,
+                            log.fieldChanged,
+                            log.oldValue,
+                            log.newValue
+                          )}
+                        </div>
+                        {log.userId?.email && (
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {log.userId.email}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
         </TabsContent>
+
+        {/* <TabsContent value="contributors">
+          <div className="flex space-x-6">
+            {okrData.contributors.map((contributor: any) => (
+              <div key={contributor.name} className="text-center">
+                <Avatar className="mx-auto mb-2">
+                  <AvatarImage
+                    src={contributor.avatar || "/placeholder.svg"}
+                    alt={contributor.name}
+                  />
+                  <AvatarFallback>
+                    {contributor.name
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="font-medium">{contributor.name}</div>
+                <div className="text-sm text-muted-foreground">
+                  {contributor.role}
+                </div>
+              </div>
+            ))}
+          </div>
+        </TabsContent> */}
       </Tabs>
     </div>
   );

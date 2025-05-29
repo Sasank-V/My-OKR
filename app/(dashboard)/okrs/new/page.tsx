@@ -20,25 +20,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Loader2 } from "lucide-react";
 
 type Entity = {
-  id: string;
+  _id: string;
   name: string;
+};
+
+type KeyResult = {
+  title: string;
+  target: string;
+  unit: string;
+};
+
+type FormData = {
+  title: string;
+  description: string;
+  objectiveType: string;
+  organizationId: string;
+  teamId: string;
+  departmentId: string;
+  status: string;
+  progress: number;
+  tags: string[];
+  startDate: string;
+  dueDate: string;
+  keyResults: KeyResult[];
+  memberId: string;
 };
 
 export default function NewOKRPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const type = searchParams.get("type") || "personal";
+  const type = searchParams.get("type") || "individual";
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
     objectiveType: type,
-    organizationId: "", // to be set by user
-    teamId: "", // optional
-    status: "draft", // or "active"
+    organizationId: "",
+    teamId: "",
+    departmentId: "",
+    memberId: "",
+    status: "draft",
     progress: 0,
     tags: [],
     startDate: "",
@@ -48,28 +72,62 @@ export default function NewOKRPage() {
 
   const [teams, setTeams] = useState<Entity[]>([]);
   const [departments, setDepartments] = useState<Entity[]>([]);
-  const [individuals, setIndividuals] = useState<Entity[]>([]);
-  const fetchTeams = async () => {
-    return [
-      { id: "t1", name: "Team Alpha" },
-      { id: "t2", name: "Team Beta" },
-    ];
+  const [people, setPeople] = useState<Entity[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch teams data
+  const fetchTeams = async (): Promise<Entity[]> => {
+    try {
+      const res = await fetch("/api/teams");
+      if (!res.ok) {
+        console.error("Failed to fetch teams:", res.statusText);
+        return [];
+      }
+      const data = await res.json();
+      console.log(data);
+      return Array.isArray(data.data) ? data.data : []; // Ensure it's an array
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+      return [];
+    }
   };
 
-  const fetchDepartments = async () => {
-    return [
-      { id: "d1", name: "Engineering" },
-      { id: "d2", name: "Marketing" },
-    ];
+  // Fetch departments data
+  const fetchDepartments = async (): Promise<Entity[]> => {
+    try {
+      const res = await fetch("/api/departments");
+      if (!res.ok) {
+        console.error("Failed to fetch departments:", res.statusText);
+        return [];
+      }
+      const data = await res.json();
+      console.log(data.data);
+      return Array.isArray(data.data) ? data.data : []; // Ensure it's an array
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      return [];
+    }
   };
 
-  const fetchIndividuals = async () => {
-    return [
-      { id: "me", name: "Myself" },
-      { id: "u1", name: "John Doe" },
-    ];
+  // Fetch people data
+  const fetchPeople = async (): Promise<Entity[]> => {
+    try {
+      const res = await fetch("/api/people");
+      if (!res.ok) {
+        console.error("Failed to fetch people:", res.statusText);
+        return [];
+      }
+      const data = await res.json();
+      console.log(data);
+      return Array.isArray(data) ? data : []; // Ensure it's an array
+    } catch (error) {
+      console.error("Error fetching people:", error);
+      return [];
+    }
   };
 
+  // Add new key result
   const addKeyResult = () => {
     setFormData((prev) => ({
       ...prev,
@@ -77,6 +135,7 @@ export default function NewOKRPage() {
     }));
   };
 
+  // Remove key result
   const removeKeyResult = (index: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -84,7 +143,12 @@ export default function NewOKRPage() {
     }));
   };
 
-  const updateKeyResult = (index: number, field: string, value: string) => {
+  // Update key result
+  const updateKeyResult = (
+    index: number,
+    field: keyof KeyResult,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       keyResults: prev.keyResults.map((kr, i) =>
@@ -93,8 +157,23 @@ export default function NewOKRPage() {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    // Validate required fields
+    if (!formData.title.trim()) {
+      alert("Please enter an objective title");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.keyResults.some((kr) => !kr.title.trim())) {
+      alert("Please fill in all key result titles");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/okrs/new", {
@@ -105,31 +184,53 @@ export default function NewOKRPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error("Failed to create OKR");
+      const result = await res.json();
 
+      if (!res.ok) {
+        throw new Error(result.error || "Failed to create OKR");
+      }
+
+      // Redirect based on objective type
       const redirectPath =
         {
-          company: "/okrs/company",
-          department: "/okrs/department",
-          team: "/okrs/team",
-          personal: "/okrs/personal",
+          organization: "/okrs?type=organization",
+          department: "/okrs?type=department",
+          team: "/okrs?type=team",
+          individual: "/okrs?type=individual",
         }[formData.objectiveType] || "/okrs";
 
       router.push(redirectPath);
     } catch (error) {
       console.error("Error creating OKR:", error);
-      alert("Failed to create OKR. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to create OKR. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // Load data based on objective type
   useEffect(() => {
     const loadData = async () => {
-      if (formData.objectiveType === "team") {
-        setTeams(await fetchTeams());
-      } else if (formData.objectiveType === "department") {
-        setDepartments(await fetchDepartments());
-      } else if (formData.objectiveType === "personal") {
-        setIndividuals(await fetchIndividuals());
+      setLoading(true);
+      try {
+        if (formData.objectiveType === "team") {
+          const teamData = await fetchTeams();
+          setTeams(teamData);
+        } else if (formData.objectiveType === "department") {
+          const deptData = await fetchDepartments();
+          setDepartments(deptData);
+        } else if (formData.objectiveType === "individual") {
+          const peopleData = await fetchPeople();
+          setPeople(peopleData);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -156,7 +257,7 @@ export default function NewOKRPage() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Objective Title</Label>
+                <Label htmlFor="title">Objective Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
@@ -168,21 +269,26 @@ export default function NewOKRPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="objectiveType">OKR Type</Label>
+                <Label htmlFor="objectiveType">OKR Type *</Label>
                 <Select
                   value={formData.objectiveType}
                   onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, objectiveType: value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      objectiveType: value,
+                      teamId: "",
+                      departmentId: "",
+                    }))
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="company">Company</SelectItem>
+                    <SelectItem value="organization">Organization</SelectItem>
                     <SelectItem value="department">Department</SelectItem>
                     <SelectItem value="team">Team</SelectItem>
-                    <SelectItem value="personal">Personal</SelectItem>
+                    <SelectItem value="individual">Personal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -204,75 +310,104 @@ export default function NewOKRPage() {
               />
             </div>
 
+            {/* Team Selection */}
             {formData.objectiveType === "team" && (
               <div className="space-y-2">
-                <Label htmlFor="teamId">Select Team</Label>
-                <Select
-                  value={formData.teamId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, teamId: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a team" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="teamId">Select Team *</Label>
+                {loading ? (
+                  <div className="flex items-center gap-2 p-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading teams...
+                    </span>
+                  </div>
+                ) : (
+                  <Select
+                    value={formData.teamId}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, teamId: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             )}
 
+            {/* Department Selection */}
             {formData.objectiveType === "department" && (
               <div className="space-y-2">
-                <Label htmlFor="departmentId">Select Department</Label>
-                <Select
-                  value={formData.teamId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, teamId: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dep) => (
-                      <SelectItem key={dep.id} value={dep.id}>
-                        {dep.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="departmentId">Select Department *</Label>
+                {loading ? (
+                  <div className="flex items-center gap-2 p-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading departments...
+                    </span>
+                  </div>
+                ) : (
+                  <Select
+                    value={formData.departmentId}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, departmentId: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments?.map((dept) => (
+                        <SelectItem key={dept._id} value={dept._id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             )}
 
-            {formData.objectiveType === "personal" && (
+            {/* Individual Selection */}
+            {formData.objectiveType === "individual" && (
               <div className="space-y-2">
-                <Label htmlFor="individualId">Assign to</Label>
-                <Select
-                  value={formData.teamId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, teamId: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an individual" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {individuals.map((person) => (
-                      <SelectItem key={person.id} value={person.id}>
-                        {person.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="memberId">Select Member *</Label>
+                {loading ? (
+                  <div className="flex items-center gap-2 p-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading people...
+                    </span>
+                  </div>
+                ) : (
+                  <Select
+                    value={formData.memberId}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, memberId: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {people.map((person) => (
+                        <SelectItem key={person._id} value={person._id}>
+                          {person.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate">Start Date</Label>
@@ -303,6 +438,25 @@ export default function NewOKRPage() {
                 />
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, status: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
 
@@ -326,13 +480,14 @@ export default function NewOKRPage() {
               {formData.keyResults.map((kr, index) => (
                 <div key={index} className="flex gap-4 items-end">
                   <div className="flex-1 space-y-2">
-                    <Label>Key Result {index + 1}</Label>
+                    <Label>Key Result {index + 1} *</Label>
                     <Input
                       value={kr.title}
                       onChange={(e) =>
                         updateKeyResult(index, "title", e.target.value)
                       }
                       placeholder="Enter key result"
+                      required
                     />
                   </div>
                   <div className="w-32 space-y-2">
@@ -372,10 +527,24 @@ export default function NewOKRPage() {
         </Card>
 
         <div className="flex justify-end gap-4 mt-6">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button type="submit">Create OKR</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create OKR"
+            )}
+          </Button>
         </div>
       </form>
     </div>

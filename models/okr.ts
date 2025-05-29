@@ -15,6 +15,7 @@ export interface IOKR extends Document {
   title: string;
   description?: string;
   ownerId: mongoose.Types.ObjectId;
+  memberId?: mongoose.Types.ObjectId;
   teamId?: mongoose.Types.ObjectId;
   departmentId?: mongoose.Types.ObjectId;
   organizationId?: mongoose.Types.ObjectId;
@@ -49,6 +50,10 @@ const OKRSchema = new Schema<IOKR>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    memberId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }, // optional
     departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department" }, // newly added

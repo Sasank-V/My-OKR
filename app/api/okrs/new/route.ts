@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/mongoose";
 import OKR from "@/models/okr";
 import OKRUpdateLog from "@/models/okr-update-log";
 import User from "@/models/user";
+import Organization from "@/models/organisation";
 
 export async function POST(req: NextRequest) {
   await connectDB();
@@ -19,12 +20,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  const organization = await Organization.findOne({});
+  if (!organization) {
+    return NextResponse.json(
+      { error: "No organization found" },
+      { status: 404 }
+    );
+  }
+
   const data = await req.json();
   const {
     title,
     description,
     objectiveType,
-    organizationId,
     teamId,
     departmentId,
     status,
@@ -33,9 +41,9 @@ export async function POST(req: NextRequest) {
     tags,
     startDate,
     dueDate,
+    memberId,
   } = data;
 
-  // Role-based objectiveType check
   const role = user.role;
   const allowedTypes: Record<typeof role, string[]> = {
     admin: ["individual", "team", "department", "organization"],
@@ -54,13 +62,18 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const newOKR = await OKR.create({
+    if (objectiveType === "individual" && !memberId) {
+      return NextResponse.json(
+        { error: "memberId is required for individual OKRs" },
+        { status: 400 }
+      );
+    }
+
+    const okrData: any = {
       title,
       description,
       ownerId: user._id,
-      organizationId, 
-      teamId, 
-      departmentId,
+      organizationId: organization._id,
       objectiveType,
       status,
       progress,
@@ -68,7 +81,17 @@ export async function POST(req: NextRequest) {
       tags,
       startDate,
       dueDate,
-    });
+    };
+
+    if (objectiveType === "individual") {
+      okrData.memberId = memberId;
+    }
+
+    // Only include if not empty or undefined
+    if (teamId) okrData.teamId = teamId;
+    if (departmentId) okrData.departmentId = departmentId;
+
+    const newOKR = await OKR.create(okrData);
 
     await OKRUpdateLog.create({
       okrId: newOKR._id,

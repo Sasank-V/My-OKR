@@ -7,7 +7,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/context/auth-provider";
 import {
   Target,
   Users,
@@ -17,6 +16,7 @@ import {
   Building2,
   User2,
   User,
+  Brain,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 // import { useAppContext } from "@/context/app-provider";
@@ -37,6 +37,7 @@ const sidebarGroups = [
           { label: "Person", icon: User, href: "/people/new" },
           { label: "Team", icon: Users, href: "/teams/new" },
           { label: "Department", icon: Building2, href: "/departments/new" },
+          { label: "Organisation", icon: Building2, href: "/organisation/new" },
         ],
       },
       {
@@ -51,19 +52,29 @@ const sidebarGroups = [
     id: "group-2",
     items: [
       {
-        id: "company-okrs",
-        label: "Company OKRs",
+        id: "organization-okrs",
+        label: "Organization OKRs",
         icon: Target,
-        href: "/okrs/company",
+        href: "/okrs?type=organization",
       },
       {
         id: "department-okrs",
         label: "Department OKRs",
         icon: Target,
-        href: "/okrs/department",
+        href: "/okrs?type=department",
       },
-      { id: "team-okrs", label: "Team OKRs", icon: Target, href: "/okrs/team" },
-      { id: "my-okrs", label: "My OKRs", icon: Target, href: "/okrs/personal" },
+      {
+        id: "team-okrs",
+        label: "Team OKRs",
+        icon: Target,
+        href: "/okrs?type=team",
+      },
+      {
+        id: "my-okrs",
+        label: "My OKRs",
+        icon: Target,
+        href: "/okrs?type=individual",
+      },
     ],
   },
   {
@@ -81,7 +92,10 @@ const sidebarGroups = [
   },
   {
     id: "group-4",
-    items: [{ id: "admin", label: "Admin", icon: Settings, href: "/admin" }],
+    items: [
+      { id: "admin", label: "Admin", icon: Settings, href: "/admin" },
+      { id: "ai-buddy", label: "AI Buddy", icon: Brain, href: "/ai" }, // 👈 Added
+    ],
   },
 ];
 

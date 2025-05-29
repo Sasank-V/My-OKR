@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,44 +12,93 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-provider";
 import { Target, TrendingUp, Calendar, BarChart3 } from "lucide-react";
+import Link from "next/link";
+
+interface RawOKR {
+  _id: string;
+  title: string;
+  progress: number;
+  keyResults: {
+    _id: string;
+    title: string;
+    target: number;
+    unit: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  dueDate: string;
+  status: string;
+}
+
+interface OKR {
+  id: string;
+  title: string;
+  progress: number;
+  keyResults: number;
+  dueDate: string;
+  status: "completed" | "on-track" | "at-risk" | "active";
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [okrs, setOkrs] = useState<OKR[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - in real app, this would come from your API
+  useEffect(() => {
+    async function fetchOKRs() {
+      try {
+        const res = await fetch("/api/okrs");
+        if (!res.ok) throw new Error("Failed to fetch OKRs");
+        const json = await res.json();
+        console.log(json);
+        const transformed: OKR[] = json.data.map((okr: RawOKR) => ({
+          id: okr._id,
+          title: okr.title,
+          progress: okr.progress,
+          keyResults: okr.keyResults.length,
+          dueDate: new Date(okr.dueDate).toLocaleDateString(),
+          status:
+            okr.status === "completed"
+              ? "completed"
+              : okr.status === "on-track" || okr.status === "at-risk"
+              ? okr.status
+              : "active", // fallback for 'active' from backend
+        }));
+
+        setOkrs(transformed);
+        setLoading(false);
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+        setLoading(false);
+      }
+    }
+
+    fetchOKRs();
+  }, []);
+
   const stats = {
-    totalOKRs: 12,
-    completedOKRs: 8,
-    inProgressOKRs: 4,
-    averageProgress: 67,
+    totalOKRs: okrs.length,
+    completedOKRs: okrs.filter((okr) => okr.status === "completed").length,
+    inProgressOKRs: okrs.filter(
+      (okr) => okr.status === "on-track" || okr.status === "at-risk"
+    ).length,
+    averageProgress:
+      okrs.length > 0
+        ? Math.round(
+            okrs.reduce((acc, okr) => acc + okr.progress, 0) / okrs.length
+          )
+        : 0,
   };
 
-  const recentOKRs = [
-    {
-      id: "1",
-      title: "Increase Customer Satisfaction",
-      progress: 75,
-      keyResults: 3,
-      dueDate: "2024-03-31",
-      status: "on-track",
-    },
-    {
-      id: "2",
-      title: "Launch New Product Feature",
-      progress: 45,
-      keyResults: 4,
-      dueDate: "2024-02-28",
-      status: "at-risk",
-    },
-    {
-      id: "3",
-      title: "Improve Team Productivity",
-      progress: 90,
-      keyResults: 2,
-      dueDate: "2024-01-31",
-      status: "completed",
-    },
-  ];
+  if (loading) return <p>Loading OKRs...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+
+  const recentOKRs = [...okrs]
+    .sort(
+      (a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()
+    )
+    .slice(0, 3);
 
   return (
     <section className="space-y-6">
@@ -74,8 +124,10 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.completedOKRs}</div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((stats.completedOKRs / stats.totalOKRs) * 100)}%
-              completion rate
+              {stats.totalOKRs > 0
+                ? Math.round((stats.completedOKRs / stats.totalOKRs) * 100)
+                : 0}
+              % completion rate
             </p>
           </CardContent>
         </Card>
@@ -103,7 +155,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent OKRs */}
       <Card>
         <CardHeader>
           <CardTitle>Recent OKRs</CardTitle>
@@ -114,7 +165,8 @@ export default function Dashboard() {
         <CardContent>
           <div className="space-y-4">
             {recentOKRs.map((okr) => (
-              <div
+              <Link
+                href={`/okrs/${okr.id}`}
                 key={okr.id}
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
@@ -131,7 +183,9 @@ export default function Dashboard() {
                           ? "default"
                           : okr.status === "on-track"
                           ? "secondary"
-                          : "destructive"
+                          : okr.status === "at-risk"
+                          ? "destructive"
+                          : "outline"
                       }
                     >
                       {okr.status}
@@ -146,7 +200,7 @@ export default function Dashboard() {
                     Due: {okr.dueDate}
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </CardContent>
