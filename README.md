@@ -4,187 +4,180 @@ A modern Objective and Key Results (OKR) management platform for organizations.
 
 ## Table of Contents
 
-- [1. Project Description](#1-project-description)
-- [2. Installation Guide](#2-installation-guide)
-- [3. Usage Instructions](#3-usage-instructions)
-- [4. Configuration & Environment Variables](#4-configuration--environment-variables)
-- [5. Features](#5-features)
-- [6. API Documentation](#6-api-documentation)
-- [7. Technologies Used](#7-technologies-used)
-- [8. Contributing Guidelines](#8-contributing-guidelines)
-- [9. License](#9-license)
-- [10. Acknowledgments & Credits](#10-acknowledgments--credits)
+* [1. Project Description](#1-project-description)
+* [2. Installation Guide](#2-installation-guide)
+* [3. Usage Instructions](#3-usage-instructions)
+* [4. Configuration & Environment Variables](#4-configuration--environment-variables)
+* [5. Features](#5-features)
+* [6. API Documentation](#6-api-documentation)
+* [7. Technologies Used](#7-technologies-used)
+* [8. Contributing Guidelines](#8-contributing-guidelines)
+* [9. License](#9-license)
+* [10. Acknowledgments & Credits](#10-acknowledgments--credits)
+
+---
 
 ## 1. Project Description
 
-MyOKR is a comprehensive OKR management application built with Next.js, designed to help organizations and teams set, track, and achieve their goals effectively. It provides a user-friendly interface for defining objectives, key results, and monitoring progress. MyOKR is suitable for individuals, teams, and entire organizations looking to implement the OKR methodology for improved performance management and goal alignment. The application addresses the challenges of managing OKRs by providing a centralized platform for tracking progress, fostering collaboration, and generating insightful analytics.
-Key highlights include:
+**MyOKR** is a comprehensive OKR management application built with **Next.js**, designed to help organizations and teams set, track, and achieve their goals effectively. It provides a user-friendly interface for defining objectives, key results, and monitoring progress.
 
-- **Intuitive Interface:** Easy-to-use dashboards and forms for managing OKRs.
+Key Highlights:
 
-* **Team Collaboration:** Seamlessly collaborate on objectives and key results.
-* **Progress Tracking:** Monitor progress visually with progress bars and charts.
-* **Comprehensive Analytics:** Gain insights into team and individual performance.
-* **AI-Powered Suggestions (Planned):** Get intelligent recommendations for achieving your OKRs (currently in development).
-* **Role-Based Access Control:** Secure and manage access permissions based on user roles.
+* 🔥 **Intuitive Interface**: Easy-to-use dashboards and forms for managing OKRs.
+* 👥 **Team Collaboration**: Collaborate seamlessly on goals and results.
+* 📊 **Progress Tracking**: Visualize OKRs using progress bars and charts.
+* 📈 **Comprehensive Analytics**: Gain insight into team and individual performance.
+* 🧠 **AI Suggestions** (Coming Soon): Smart recommendations for goal completion.
+* 🔐 **Role-Based Access Control**: Secure access control by user role.
+
+---
 
 ## 2. Installation Guide
 
-This project uses Next.js and requires Node.js and npm (or yarn, pnpm, bun) to run.
+> This project uses **Next.js** and requires **Node.js** and a package manager like npm, yarn, pnpm, or bun.
 
-1. **Clone the repository:**
-
-```bash
-
-```
-
-git clone <repository_url>
-cd my-okr
-
-```
-
-```
-
-2. **Install dependencies:**
+### 1. Clone the repository:
 
 ```bash
-
+git clone https://github.com/Sasank-V/My-OKR.git
+cd My-OKR
 ```
 
+### 2. Install dependencies:
+
+```bash
+# Choose one
 npm install
-
 # or
-
 yarn install
-
 # or
-
 pnpm install
-
 # or
-
 bun install
-
 ```
 
-```
-
-3. **Set up environment variables (optional):** Create a `.env` file in the root directory and add any necessary environment variables. See the [Configuration & Environment Variables](#4-configuration--environment-variables) section for details.
+---
 
 ## 3. Usage Instructions
 
-To run the development server:
+Start the development server:
 
 ```bash
-
-```
-
+# Choose one
 npm run dev
-
 # or
-
 yarn dev
-
 # or
-
 pnpm dev
-
 # or
-
 bun dev
-
-```
-
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+---
+
 ## 4. Configuration & Environment Variables
 
-The project uses environment variables, primarily for database connection and authentication. A `.env` file is not committed to the repository, for security reasons. Example `.env` content:
+Create a `.env` file in the root directory with the following:
 
-```
-
-```
-
+```env
 MONGODB_URI=your_mongodb_connection_string
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=your_nextauth_url (e.g., http://localhost:3000)
-
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-```
+---
 
 ## 5. Features
 
-- **OKR Management:** Create, edit, and delete Objectives and Key Results at the individual, team, department, and organizational levels.
+* ✅ **OKR Management**: CRUD for Objectives and Key Results at every level.
+* 🏢 **Org Hierarchy**: Organization → Departments → Teams → Users.
+* 👤 **User Management**: Add/edit roles, teams, and departments.
+* 🕵️‍♂️ **Role-Based Access**: Permissions for Admin, Manager, and Users.
+* 📊 **Progress Visualization**: View OKR status with dynamic UI.
+* 🔐 **Authentication**: Google OAuth via NextAuth.js.
+* 📜 **Activity Logging**: Changes to OKRs are logged for transparency.
 
-* **Team Management:** Create, edit, and manage teams, including assigning team leads and members.
-* **Department Management:** Create, edit, and manage departments, including assigning department heads.
-* **User Management:** Add, edit, and manage user accounts, roles, and permissions.
-* **Progress Tracking:** Track and visualize progress towards objectives and key results using progress bars and charts.
-* **Analytics Dashboard:** Gain insights into overall organization performance and trends.
-* **Authentication:** Secure authentication via Google OAuth.
-* **Activity Logging:** Track updates and changes to OKRs, teams, and other aspects of the app.
+---
 
 ## 6. API Documentation
 
-The application uses several API endpoints for data management. Authentication is handled through NextAuth.js, with access tokens needed for most API routes. All APIs return JSON.
 **Base URL:** `/api`
-| Endpoint | Method | Description | Request Body (example) | Response (example) |
-|----------------------|--------|-------------------------------------------------------|----------------------------------------------------|---------------------------------------------------|
-| `/okrs/new` | POST | Create a new OKR | `{ title: "Increase Sales", description: "...", ... }` | `{ success: true, okr: { _id: "...", ... } }` |
-| `/okrs` | GET | Get all OKRs (filterable by type) | `{type: "individual"}` | `{ success: true, data: [{ _id: "...", ... }, ...] }` |
-| `/okrs/{id}` | GET | Get a specific OKR | | `{ _id: "...", title: "...", ... }` |
-| `/okrs/{id}` | PUT | Update a specific OKR | `{ title: "New Title", description: "...", ... }` | `{ _id: "...", title: "...", ... }` |
-| `/okrs/{id}` | DELETE | Delete a specific OKR | | `{ message: "OKR deleted successfully" }` |
-| `/okrs/{id}/updates` | GET | Get update logs for a specific OKR | | `[{ action: "...", fieldChanged: "...", ... }, ...]` |
-| `/teams/new` | POST | Create a new team | `{ name: "Team A", description: "...", ... }` | `{ message: "Team created successfully", team: { _id: "...", ... } }` |
-| `/teams` | GET | Get all teams (filterable by departmentId) | `{departmentId: "dept-1"}` | `{ success: true, data: [{ _id: "...", ... }, ...] }` |
-| `/teams/{id}` | GET | Get a specific team | | `{ _id: "...", name: "...", ... }` |
-| `/teams/{id}` | PUT | Update a specific team | `{ name: "New Team Name", ... }` | `{ _id: "...", name: "...", ... }` |
-| `/teams/{id}` | DELETE | Delete a specific team | | `{ message: "Team deleted successfully" }` |
-| `/people/new` | POST | Create a new person | `{ name: "New Person", email: "...", ... }` | `{ message: "User created successfully", user: { _id: "...", ... } }` |
-| `/people` | GET | Get all people | | `[{ _id: "...", name: "...", ... }, ...]` |
-| `/people/{id}` | GET | Get details for a specific person | | `{ _id: "...", name: "...", ... }` |
-| `/people/{id}` | PUT | Update details for a specific person | `{ name: "Updated Name", ... }` | `{ _id: "...", name: "...", ... }` |
-| `/departments/new` | POST | Create a new department | `{ name: "New Department", description: "...", ... }` | `{ _id: "...", name: "...", ... }` |
-| `/departments` | GET | Get all departments | | `[{ _id: "...", name: "...", ... }, ...]` |
-| `/departments/{id}` | GET | Get details for a specific department | | `{ _id: "...", name: "...", ... }` |
-| `/departments/{id}` | PUT | Update details for a specific department | `{ name: "Updated Department", ... }` | `{ _id: "...", name: "...", ... }` |
-| `/departments/{id}` | DELETE | Delete a specific department | | `{ message: "Department deleted successfully" }` |
-| `/signin` | POST | Sign in user (used by NextAuth callbacks) | `{ email: "...", ... }` | `{ message: "User created successfully", user: { _id: "...", ... } }` |
+
+| Endpoint             | Method | Description                   |
+| -------------------- | ------ | ----------------------------- |
+| `/okrs/new`          | POST   | Create a new OKR              |
+| `/okrs`              | GET    | Get all OKRs                  |
+| `/okrs/{id}`         | GET    | Get a specific OKR            |
+| `/okrs/{id}`         | PUT    | Update an OKR                 |
+| `/okrs/{id}`         | DELETE | Delete an OKR                 |
+| `/okrs/{id}/updates` | GET    | Get OKR update logs           |
+| `/teams/new`         | POST   | Create a new team             |
+| `/teams`             | GET    | Get all teams                 |
+| `/teams/{id}`        | GET    | Get a team                    |
+| `/teams/{id}`        | PUT    | Update a team                 |
+| `/teams/{id}`        | DELETE | Delete a team                 |
+| `/people/new`        | POST   | Create a user                 |
+| `/people`            | GET    | Get all users                 |
+| `/people/{id}`       | GET    | Get a specific user           |
+| `/people/{id}`       | PUT    | Update a user                 |
+| `/departments/new`   | POST   | Create a department           |
+| `/departments`       | GET    | Get all departments           |
+| `/departments/{id}`  | GET    | Get a department              |
+| `/departments/{id}`  | PUT    | Update a department           |
+| `/departments/{id}`  | DELETE | Delete a department           |
+| `/signin`            | POST   | Used by NextAuth.js for login |
+
+All API routes return JSON and require authentication.
+
+---
 
 ## 7. Technologies Used
 
-- **Next.js:** React framework for building the user interface. [https://nextjs.org/](https://nextjs.org/)
+* ⚛️ [Next.js](https://nextjs.org/)
+* 💅 [Tailwind CSS](https://tailwindcss.com/)
+* 🧱 [Radix UI](https://www.radix-ui.com/)
+* 🎨 [Lucide Icons](https://lucide.dev/)
+* 🔐 [NextAuth.js](https://next-auth.js.org/)
+* 🧬 [Mongoose](https://mongoosejs.com/)
+* 📦 [MongoDB](https://www.mongodb.com/)
 
-* **React:** JavaScript library for building user interfaces. [https://reactjs.org/](https://reactjs.org/)
-* **Tailwind CSS:** Utility-first CSS framework. [https://tailwindcss.com/](https://tailwindcss.com/)
-* **Radix UI:** Primitive UI component library. [https://radix-ui.com/](https://radix-ui.com/)
-* **Lucide:** Icon library. [https://lucide.dev/](https://lucide.dev/)
-* **NextAuth.js:** Authentication library. [https://next-auth.js.org/](https://next-auth.js.org/)
-* **Mongoose:** MongoDB ODM. [https://mongoosejs.com/](https://mongoosejs.com/)
-* **MongoDB:** NoSQL database. [https://www.mongodb.com/](https://www.mongodb.com/)
+---
 
 ## 8. Contributing Guidelines
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions! To contribute:
 
-1. **Fork** the repository.
-2. **Clone** your forked repository to your local machine.
-3. **Create a new branch** for your feature or bug fix.
-4. **Make your changes** and commit them with descriptive messages.
-5. **Push** your branch to your forked repository.
-6. **Create a pull request** to merge your changes into the main repository.
-   We use **Prettier** for code formatting and **ESLint** for linting. Please ensure your code adheres to these style guides before submitting a pull request.
+1. Fork this repository.
+2. Create a new branch (`git checkout -b feature-name`).
+3. Make your changes.
+4. Commit with a clear message.
+5. Push to your fork.
+6. Create a Pull Request.
+
+> Ensure your code passes ESLint rules and is formatted with Prettier.
+
+---
 
 ## 9. License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**.
+See the [LICENSE](LICENSE) file for full details.
+
+---
 
 ## 10. Acknowledgments & Credits
 
-This project utilizes several open-source libraries, including those listed in the [Technologies Used](#7-technologies-used) section. Thanks to the creators and contributors of these projects.
+This project leverages several amazing open-source tools.
+Thanks to all contributors of:
+
+* Next.js
+* Tailwind CSS
+* Radix UI
+* Lucide Icons
+* NextAuth.js
+* Mongoose
+* MongoDB
